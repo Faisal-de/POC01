@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Student Portal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-light">
+
+    <nav class="navbar navbar-dark bg-dark mb-4">
+        <div class="container">
+            <a class="navbar-brand" href="/"><i class="fas fa-user-graduate me-2"></i> Student Portal</a>
+        </div>
+    </nav>
+
+    <div class="container-fluid px-4">
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="row">
+            <div class="col-md-3">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <i class="fas fa-plus-circle"></i> Add New Student
+                    </div>
+                    <div class="card-body">
+                        <form action="/add" method="POST">
+                            
+                            <div class="mb-2">
+                                <label class="form-label text-muted small">Full Name</label>
+                                <div class="row g-2">
+                                    <div class="col"><input type="text" name="first_name" class="form-control" placeholder="First" required></div>
+                                    <div class="col"><input type="text" name="last_name" class="form-control" placeholder="Last" required></div>
+                                </div>
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label text-muted small">Email</label>
+                                <input type="email" name="email" class="form-control" placeholder="email@example.com" required>
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label text-muted small">Phone</label>
+                                <input type="tel" name="phone" class="form-control" placeholder="0300-1234567" required>
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label text-muted small">Gender</label>
+                                <select name="gender" class="form-select" required>
+                                    <option value="" selected disabled>Select...</option>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label text-muted small">Enrolled Courses</label>
+                                <div class="card p-2 bg-light" style="max-height: 150px; overflow-y: auto;">
+                                    {% for course in courses %}
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="courses" value="{{ course }}" id="c_{{ loop.index }}">
+                                        <label class="form-check-label" for="c_{{ loop.index }}">
+                                            {{ course }}
+                                        </label>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary w-100">Save Student</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-9">
+                <form action="/" method="GET" class="d-flex mb-3">
+                    <input type="text" name="search" class="form-control me-2" placeholder="Search by ID or Name...">
+                    <button class="btn btn-outline-primary" type="submit">Search</button>
+                    <a href="/" class="btn btn-outline-secondary ms-2">Reset</a>
+                </form>
+
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white">
+                        <i class="fas fa-list"></i> Enrolled Students
+                    </div>
+                    <div class="card-body p-0">
+                        <table class="table table-hover mb-0 text-center align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Gender</th>
+                                    <th>Courses</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for student in students %}
+                                <tr>
+                                    <td>{{ student.id }}</td>
+                                    <td class="fw-bold">{{ student.first_name }} {{ student.last_name }}</td>
+                                    <td>{{ student.email }}</td>
+                                    <td>
+                                        {% if student.gender == 'Male' %}
+                                            <span class="badge bg-info text-dark">M</span>
+                                        {% else %}
+                                            <span class="badge bg-danger text-white">F</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% for c in student.course.split(', ') %}
+                                            <span class="badge bg-secondary mb-1">{{ c }}</span>
+                                        {% endfor %}
+                                    </td>
+                                    <td>
+                                        <a href="/update/{{ student.id }}" class="btn btn-warning btn-sm"><i class="fas fa-pencil-alt"></i></a>
+                                        <a href="/delete/{{ student.id }}" class="btn btn-danger btn-sm" onclick="return confirm('Delete this student?');"><i class="fas fa-trash"></i></a>
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr><td colspan="6" class="text-muted py-4">No students found.</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
